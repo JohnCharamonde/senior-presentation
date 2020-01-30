@@ -2,10 +2,13 @@ const express = require('express');
 const connection = require('../database');
 const app = express();
 
-app.use('/id', express.static('./public'));
+
 app.use(express.json());
 
-app.get('/api/booking/:id/', (req, res) => {
+app.use('/:id', express.static('./public'));
+
+app.post('/api/booking/:id/', (req, res) => {
+  console.log(req.body.checkIn)
   // get the record for the hotel corresponding to the id passed through the url
   connection.getTargetHotelInfo(req.params.id, (error, hotel) => {
     if (error) {
@@ -29,8 +32,8 @@ app.get('/api/booking/:id/', (req, res) => {
               if (error) {
                 console.log(error)
               } else {
-                // first element of pricingAndDealData is value at hotel's own deal property
-                let pricingAndDealData = [hotel[0].deal];
+                // store value of hotel's own deal property to pricingAndDealData AND initialize a prices array to be populated below
+                let pricingAndDealData = {deal: hotel[0].deal, prices: []};
 
                 // calculate average price for the stay factoring in all variables EXCEPT each site's unique tweak factor
                 let adultExtraCost = req.body.adults > 2 ? (req.body.adults - 2) * hotel[0].adult_premium  * hotel[0].standard_rate : 0;
@@ -39,11 +42,13 @@ app.get('/api/booking/:id/', (req, res) => {
                 let averagePrice = (hotel[0].standard_rate + adultExtraCost + childrenExtraCost) * averageDatePremium;
 
                 // apply each site's tweak factor to the averagePrice, make a site Object with name and price properties, push to pricingAndDealData
+
                 sites.forEach(site => {
-                  pricingAndDealData.push({ name: site.site_name, price: Math.ceil(averagePrice * site.tweak), logo: site.logo, incentive: site.incentive })
+                  pricingAndDealData.prices.push({ name: site.site_name, price: Math.ceil(averagePrice * site.tweak), logo: site.logo, incentive: site.incentive })
                 });
+
                 //send the formatted data
-                res.status(200).send(pricingAndDealData)
+                res.status(200).send(pricingAndDealData);
               }
             })
           }
