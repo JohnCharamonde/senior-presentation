@@ -12,8 +12,9 @@ class Booking extends React.Component {
       deal: '',
       prices: [{ name: '', price: '' }, { name: '', price: '' }, { name: '', price: '' }, { name: '', price: '' }, { name: '', price: '' }, { name: '', price: '' }, { name: '', price: '' }, { name: '', price: '' }, { name: '', price: '' }, { name: '', price: '' }, { name: '', price: '' }, { name: '', price: '' }, { name: '', price: '' }, { name: '', price: '' }, { name: '', price: '' }, { name: '', price: '' }, { name: '', price: '' }, { name: '', price: '' }, { name: '', price: '' }, { name: '', price: '' }],
       viewers: this.generateViewersMessage(),
-      sessionCheckIn: 41,
-      sessionCheckOut: 42,
+      sessionCheckIn: 42,
+      sessionCheckOut: 58,
+      sessionLengthOfStay: 1,
       sessionRooms: 1,
       sessionChildren: 0,
       sessionAdults: 2,
@@ -124,6 +125,21 @@ class Booking extends React.Component {
     }
   }
 
+  handleGuestInfoClose(e) {
+    this.setState({
+      isGuestInformationActive: false
+    })
+  }
+
+  handleGuestInfoClick(e) {
+    this.setState({
+      isGuestInformationActive: true
+    })
+  }
+
+  handleToggleUpGuestInfoCategory(guestInfoCategory, e) {
+
+  }
 
   render() {
     console.log(this.state.prices)
@@ -290,6 +306,55 @@ class Booking extends React.Component {
           </div>
         </div>
 
+        <div id="guestInfo" style={{ position: "absolute", left: 403, top: 50, "backgroundColor": "white", "height": 230, "width": 288, paddingTop: 16, paddingBottom: 16, paddingRight: 16, paddingLeft: 16, "boxShadow": "0 0 1px 0px rgba(0, 0, 0, 0.4)" }}>
+
+          <div id="closeGuestInfo" style={{ float: "right", color: "#00a680", fontSize: 20, cursor: "pointer" }}>< i class="fas fa-times"></i></div>
+
+          <div id="rooms" style={{ display: "inline-block", height: 36, width: 288, color: "#2C2C2C", "fontFamily": "Arial,Tahoma,Bitstream Vera Sans,sans-serif", fontWeight: 700, paddingTop: 16, fontSize: ".95em" }}>
+            <div style={{ display: "inline-block", marginTop: 12 }}>
+              <span><i class="fas fa-bed"></i></span><span style={{ "marginLeft": 5 }}>Rooms</span>
+            </div>
+            <div style={{ display: "flex", flexDirection: "row", float: "right" }}>
+              <div style={{ display: "flex", width: 36, height: 36, color: "#00A680", alignItems: "center", justifyContent: "center", border: "1px solid #e5e5e5", cursor: "pointer" }}><i class="fas fa-minus"></i></div>
+              <div style={{ display: "flex", width: 58, height: 36, color: "#2C2c2C", alignItems: "center", justifyContent: "center", border: "1px solid #e5e5e5", fontWeight: 400, boxShadow: "inset 0 3px 3px -3px rgba(0,0,0,.25)" }}>{this.state.sessionRooms}</div>
+              <div style={{ display: "flex", width: 36, height: 36, color: "#00A680", alignItems: "center", justifyContent: "center", border: "1px solid #e5e5e5", cursor: "pointer" }}><i class="fas fa-plus"></i></div>
+            </div>
+          </div>
+
+
+
+
+
+          <div id="adults" style={{ display: "inline-block", height: 36, width: 288, color: "#2C2C2C", "fontFamily": "Arial,Tahoma,Bitstream Vera Sans,sans-serif", fontWeight: 700, paddingTop: 16, fontSize: ".95em" }}>
+            <div style={{ display: "inline-block", marginTop: 12 }}>
+              <span><i class="fas fa-bed"></i></span><span style={{ "marginLeft": 5 }}>Adults</span>
+            </div>
+            <div style={{ display: "flex", flexDirection: "row", float: "right" }}>
+              <div style={{ display: "flex", width: 36, height: 36, color: "#00A680", alignItems: "center", justifyContent: "center", border: "1px solid #e5e5e5", cursor: "pointer" }}><i class="fas fa-minus"></i></div>
+              <div style={{ display: "flex", width: 58, height: 36, color: "#2C2c2C", alignItems: "center", justifyContent: "center", border: "1px solid #e5e5e5", fontWeight: 400, boxShadow: "inset 0 3px 3px -3px rgba(0,0,0,.25)" }}>{this.state.sessionAdults}</div>
+              <div style={{ display: "flex", width: 36, height: 36, color: "#00A680", alignItems: "center", justifyContent: "center", border: "1px solid #e5e5e5", cursor: "pointer" }}><i class="fas fa-plus"></i></div>
+            </div>
+          </div>
+
+
+
+
+
+
+          <div id="children" style={{ display: "inline-block", height: 36, width: 288, color: "#2C2C2C", "fontFamily": "Arial,Tahoma,Bitstream Vera Sans,sans-serif", fontWeight: 700, paddingTop: 16, fontSize: ".95em" }}>
+            <div style={{ display: "inline-block", marginTop: 12 }}>
+              <span><i class="fas fa-bed"></i></span><span style={{ "marginLeft": 5 }}>Children</span>
+            </div>
+            <div style={{ display: "flex", flexDirection: "row", float: "right" }}>
+              <div style={{ display: "flex", width: 36, height: 36, color: "#00A680", alignItems: "center", justifyContent: "center", border: "1px solid #e5e5e5", cursor: "pointer" }}><i class="fas fa-minus"></i></div>
+              <div style={{ display: "flex", width: 58, height: 36, color: "#2C2c2C", alignItems: "center", justifyContent: "center", border: "1px solid #e5e5e5", fontWeight: 400, boxShadow: "inset 0 3px 3px -3px rgba(0,0,0,.25)" }}>{this.state.sessionChildren}</div>
+              <div style={{ display: "flex", width: 36, height: 36, color: "#00A680", alignItems: "center", justifyContent: "center", border: "1px solid #e5e5e5", cursor: "pointer" }}><i class="fas fa-plus"></i></div>
+            </div>
+          </div>
+          <div style={{ paddingTop: 16 }}>
+            <button id="update" style={{ borderColor: "#078171", width: 288, height: 36, backgroundColor: "#078171", color: "#fff", fontFamily: "Arial,Tahoma,Bitstream Vera Sans,sans-serif", border: "1px solid transparent", borderRadius: 3, fontSize: ".95em", textAlign: "center", cursor: "pointer", fontWeight: 700 }}>Update</button>
+          </div>
+        </div>
 
 
 
