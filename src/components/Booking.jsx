@@ -19,8 +19,13 @@ class Booking extends React.Component {
       sessionAdults: 2,
       months: months,
       days: days,
-      leftMonthIndex:2,
-      rightMonthIndex:3
+      leftMonthIndex: 2,
+      rightMonthIndex: 3,
+      areCheckInCalendarsActive: true,
+      areCheckOutCalendarsActive: false,
+      isGuestInformationActive: false,
+      isSmallQuotesDisplayActive: false,
+      isDisclaimerActive: false
     }
   }
 
@@ -53,7 +58,7 @@ class Booking extends React.Component {
   }
 
   handleCalendarToggleMonthLeft(e) {
-    if(this.state.leftMonthIndex > 2) {
+    if (this.state.leftMonthIndex > 2) {
       let newLeftMonthIndex = this.state.leftMonthIndex -= 1;
       let newRightMonthIndex = this.state.rightMonthIndex -= 1;
       this.setState({
@@ -64,7 +69,7 @@ class Booking extends React.Component {
   }
 
   handleCalendarToggleMonthRight(e) {
-    if(this.state.leftMonthIndex < 11) {
+    if (this.state.leftMonthIndex < 11) {
       let newLeftMonthIndex = this.state.leftMonthIndex += 1;
       let newRightMonthIndex = this.state.rightMonthIndex += 1;
       this.setState({
@@ -75,30 +80,55 @@ class Booking extends React.Component {
   }
 
   handleCalendarRowItemClick(dayIndex, e) {
-    this.setState({
-      sessionCheckIn: dayIndex
-    })
-
-    fetch('/api/booking/' + this.state.id, {
-      method: 'POST',
-      body: JSON.stringify({ checkIn: this.state.sessionCheckIn, checkOut: this.state.sessionCheckOut, adults: this.state.sessionAdults, children: this.state.sessionChildren }),
-      headers: { 'Content-type': 'application/json' }
-    })
-      .then((data) => {
-        return data.json()
+    if (this.state.areCheckInCalendarsActive) {
+      this.setState({
+        sessionCheckIn: dayIndex,
+        areCheckInCalendarsActive: false,
+        areCheckOutCalendarsActive: true,
       })
-      .then((dataJson) => {
-        this.setState({
-          deal: dataJson.deal,
-          prices: dataJson.prices
+
+      fetch('/api/booking/' + this.state.id, {
+        method: 'POST',
+        body: JSON.stringify({ checkIn: this.state.sessionCheckIn, checkOut: this.state.sessionCheckOut, adults: this.state.sessionAdults, children: this.state.sessionChildren }),
+        headers: { 'Content-type': 'application/json' }
+      })
+        .then((data) => {
+          return data.json()
         })
-      });
+        .then((dataJson) => {
+          this.setState({
+            deal: dataJson.deal,
+            prices: dataJson.prices
+          })
+        });
+    } else if (this.state.areCheckOutCalendarsActive) {
+      this.setState({
+        sessionCheckOut: dayIndex,
+        areCheckOutCalendarsActive: false,
+      })
+
+      fetch('/api/booking/' + this.state.id, {
+        method: 'POST',
+        body: JSON.stringify({ checkIn: this.state.sessionCheckIn, checkOut: this.state.sessionCheckOut, adults: this.state.sessionAdults, children: this.state.sessionChildren }),
+        headers: { 'Content-type': 'application/json' }
+      })
+        .then((data) => {
+          return data.json()
+        })
+        .then((dataJson) => {
+          this.setState({
+            deal: dataJson.deal,
+            prices: dataJson.prices
+          })
+        });
+    }
   }
 
+
   render() {
-    console.log(this.state.days[this.state.sessionCheckIn].CheckInOutFormatted)
+    console.log(this.state.prices)
     return (
-      <div style={{ "display": "inline-block", backgroundColor:"#f2f2f2", height:2000, width:"100%"}}>
+      <div style={{ "display": "inline-block", backgroundColor: "#f2f2f2", height: 2000, width: "100%" }}>
         <div id="bookingWidget" style={{ "display": "inline-block", "width": 395, "height": 560, "backgroundColor": "white", "textAlign": "center", "borderRadius": 0, "boxShadow": "0 0 3px 0px rgba(0, 0, 0, 0.4)" }}>
           <div id="viewers" style={{ "height": "15px", "margin": "8px 0", "padding": "15px" }}>
             <div id="viewerMessage" style={{ "fontFamily": "Arial,Tahoma,Bitstream Vera Sans,sans-serif", "color": "#D91E18", "fontWeight": 700, "fontSize": "16px", "textAlign": "center" }}>
@@ -118,7 +148,7 @@ class Booking extends React.Component {
                   <div style={{ "display": "inline-block", "height": 25, "width": 25, "color": "#767676", "fontSize": 18, "float": "left", "marginTop": 13, "marginLeft": 5, "marginRight": 5 }}><i class="far fa-calendar-alt"></i></div>
                   <div style={{ "marginLeft": 30 }}>
                     <div style={{ "textAlign": "left", "fontFamily": "Arial,Tahoma,Bitstream Vera Sans,sans-serif", "fontSize": 13, "color": "#4A4A4A", "marginBottom": 5, "marginTop": 5, "fontWeight": 300 }}>Check In</div>
-    <div style={{ "textAlign": "left", "fontFamily": "Arial,Tahoma,Bitstream Vera Sans,sans-serif", "fontSize": 14, "color": "rgba(0, 0,. 0, 0.85)", "fontWeight": 600 }}>{this.state.days[this.state.sessionCheckIn].CheckInOutFormatted}</div>
+                    <div style={{ "textAlign": "left", "fontFamily": "Arial,Tahoma,Bitstream Vera Sans,sans-serif", "fontSize": 14, "color": "rgba(0, 0,. 0, 0.85)", "fontWeight": 600 }}>{this.state.days[this.state.sessionCheckIn].CheckInOutFormatted}</div>
                   </div>
                 </div>
               </div>
@@ -128,7 +158,7 @@ class Booking extends React.Component {
                   <div style={{ "display": "inline-block", "height": 25, "width": 25, "color": "#767676", "fontSize": 18, "float": "left", "marginTop": 13, "marginLeft": 10, "marginRight": 3 }}><i class="far fa-calendar-alt"></i></div>
                   <div style={{ "marginLeft": 30 }}>
                     <div style={{ "textAlign": "left", "fontFamily": "Arial,Tahoma,Bitstream Vera Sans,sans-serif", "fontSize": 13, "color": "#4A4A4A", "marginBottom": 5, "marginTop": 5, "fontWeight": 300 }}>Check In</div>
-    <div style={{ "textAlign": "left", "fontFamily": "Arial,Tahoma,Bitstream Vera Sans,sans-serif", "fontSize": 14, "color": "rgba(0, 0,. 0, 0.85)", "fontWeight": 600 }}>{this.state.days[this.state.sessionCheckOut].CheckInOutFormatted}</div>
+                    <div style={{ "textAlign": "left", "fontFamily": "Arial,Tahoma,Bitstream Vera Sans,sans-serif", "fontSize": 14, "color": "rgba(0, 0,. 0, 0.85)", "fontWeight": 600 }}>{this.state.days[this.state.sessionCheckOut].CheckInOutFormatted}</div>
                   </div>
                 </div>
               </div>
@@ -225,27 +255,27 @@ class Booking extends React.Component {
             </div>
           </div>
         </div>
-        <div style={{display:"inline-block", "width": 100 }}></div>
+        <div style={{ display: "inline-block", "width": 100 }}></div>
         <div id="calendar" style={{ "display": "inline-block", "backgroundColor": "white", "height": 419, "width": 545, "marginRight": 30, "boxShadow": "0 0 1px 0px rgba(0, 0, 0, 0.4)" }}>
-          <div id="header" style={{ "display": "block", "fontFamily": "Arial,Tahoma,Bitstream Vera Sans,sans-serif", "color": "#000a12", "fontWeight": 700, "fontSize": "16px", "textAlign": "center", "marginRight": "15px", "marginLeft": "15px", "borderBottom": "1px solid #e5e5e5", "paddingTop": 15, "paddingBottom": 0}}>
+          <div id="header" style={{ "display": "block", "fontFamily": "Arial,Tahoma,Bitstream Vera Sans,sans-serif", "color": "#000a12", "fontWeight": 700, "fontSize": "16px", "textAlign": "center", "marginRight": "15px", "marginLeft": "15px", "borderBottom": "1px solid #e5e5e5", "paddingTop": 15, "paddingBottom": 0 }}>
             <div style={{ "color": "#000A12" }}>Select a date to continue</div>
             <div>
               <div style={{ "display": "inline-block", "height": 10, "width": 10, "borderRadius": 2, "backgroundColor": "#fc0", "marginRight": 4 }}></div>
-              <div style={{ "display": "inline-block", "paddingTop": 4,paddingBottom:4, "color": "#4A4A4A", "fontSize": 14 }}>Lowest priced dates</div>
+              <div style={{ "display": "inline-block", "paddingTop": 4, paddingBottom: 4, "color": "#4A4A4A", "fontSize": 14 }}>Lowest priced dates</div>
             </div>
           </div>
           <div id="months">
-          <div id="LeftMonth" style={{ "display": "inline-block", "width": 240, "height": 287, "marginTop": 12, "marginBottom": 12, "paddingRight": 16, "paddingLeft": 16, "whiteSpace": "nowrap", "fontFamily": "Arial,Tahoma,Bitstream Vera Sans,sans-serif", "color": "#2c2c2c",borderRight: "1px solid #e5e5e5"}}>
-            <div id="leftMonthHeaderAndNav" style={{"display":"inline-block","width":240, "height":38,"fontFamily": "Arial,Tahoma,Bitstream Vera Sans,sans-serif",'textAlign':"center", "fontSize":16, "fontWeight": 700, "paddingTop": 5,"paddingBottom": 5,"paddingRight": 7,"paddingLeft": 7}}>
-              <div style={{display:"inline-block"}}>{this.state.months[this.state.leftMonthIndex].month}</div>
-              <div style={{display:"inline-block", float:"left"}} onClick={(e)=>{this.handleCalendarToggleMonthLeft(e)}}><i class="fas fa-chevron-left"></i></div>
+            <div id="LeftMonth" style={{ "display": "inline-block", "width": 240, "height": 287, "marginTop": 12, "marginBottom": 12, "paddingRight": 16, "paddingLeft": 16, "whiteSpace": "nowrap", "fontFamily": "Arial,Tahoma,Bitstream Vera Sans,sans-serif", "color": "#2c2c2c", borderRight: "1px solid #e5e5e5" }}>
+              <div id="leftMonthHeaderAndNav" style={{ "display": "inline-block", "width": 240, "height": 38, "fontFamily": "Arial,Tahoma,Bitstream Vera Sans,sans-serif", 'textAlign': "center", "fontSize": 16, "fontWeight": 700, "paddingTop": 5, "paddingBottom": 5, "paddingRight": 7, "paddingLeft": 7 }}>
+                <div style={{ display: "inline-block" }}>{this.state.months[this.state.leftMonthIndex].month}</div>
+                <div style={{ display: "inline-block", float: "left" }} onClick={(e) => { this.handleCalendarToggleMonthLeft(e) }}><i class="fas fa-chevron-left"></i></div>
               </div>
               <Calendar rows={this.state.months[this.state.leftMonthIndex]} days={this.state.days} handleCalendarRowItemClick={this.handleCalendarRowItemClick.bind(this)} />
             </div>
-            <div id="rightMonth" style={{ "display": "inline-block", "width": 240, "height": 287, "marginTop": 12, "marginBottom": 12, "paddingRight": 16, "paddingLeft": 16, "whiteSpace": "nowrap", "fontFamily": "Arial,Tahoma,Bitstream Vera Sans,sans-serif", "color": "#2c2c2c"}}>
-            <div id="rightMonthHeaderAndNav" style={{"display":"inline-block","width":240, "height":38,"fontFamily": "Arial,Tahoma,Bitstream Vera Sans,sans-serif",'textAlign':"center", "fontSize":16, "fontWeight": 700, "paddingTop": 5,"paddingBottom": 5,"paddingRight": 7,"paddingLeft": 7}}>
-              <div style={{display:"inline-block"}}>{this.state.months[this.state.rightMonthIndex].month}</div>
-              <div style={{display:"inline-block", float:"right"}} onClick={(e)=>{this.handleCalendarToggleMonthRight(e)}}><i class="fas fa-chevron-right"></i></div>
+            <div id="rightMonth" style={{ "display": "inline-block", "width": 240, "height": 287, "marginTop": 12, "marginBottom": 12, "paddingRight": 16, "paddingLeft": 16, "whiteSpace": "nowrap", "fontFamily": "Arial,Tahoma,Bitstream Vera Sans,sans-serif", "color": "#2c2c2c" }}>
+              <div id="rightMonthHeaderAndNav" style={{ "display": "inline-block", "width": 240, "height": 38, "fontFamily": "Arial,Tahoma,Bitstream Vera Sans,sans-serif", 'textAlign': "center", "fontSize": 16, "fontWeight": 700, "paddingTop": 5, "paddingBottom": 5, "paddingRight": 7, "paddingLeft": 7 }}>
+                <div style={{ display: "inline-block" }}>{this.state.months[this.state.rightMonthIndex].month}</div>
+                <div style={{ display: "inline-block", float: "right" }} onClick={(e) => { this.handleCalendarToggleMonthRight(e) }}><i class="fas fa-chevron-right"></i></div>
               </div>
               <Calendar rows={this.state.months[this.state.rightMonthIndex]} days={this.state.days} handleCalendarRowItemClick={this.handleCalendarRowItemClick.bind(this)} />
             </div>
@@ -255,10 +285,14 @@ class Booking extends React.Component {
 
           </div>
           {/* <div style={{ "borderBottom": "1px solid #e5e5e5", "width": 523,"paddingRight": 16, "paddingLeft": 16, "textAlign":"center"}}></div> */}
-          <div id="averagePrices" style={{ "display": "block", "width": 510, "height": 20, "marginRight": 16, "marginLeft": 16, "paddingTop": 12, "paddingBottom": 15, "borderTop": "1px solid #e5e5e5"}}>
+          <div id="averagePrices" style={{ "display": "block", "width": 510, "height": 20, "marginRight": 16, "marginLeft": 16, "paddingTop": 12, "paddingBottom": 15, "borderTop": "1px solid #e5e5e5" }}>
             <span style={{ "fontFamily": "Arial,Tahoma,Bitstream Vera Sans,sans-serif", "color": "#2c2c2c", "fontSize": 13 }}>Average daily rates: ${this.state.prices[0].price} - ${this.state.prices[19].price}</span>
           </div>
         </div>
+
+
+
+
       </div>
     )
   }
