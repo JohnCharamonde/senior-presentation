@@ -13,7 +13,7 @@ class Booking extends React.Component {
       prices: [{ name: '', price: '' }, { name: '', price: '' }, { name: '', price: '' }, { name: '', price: '' }, { name: '', price: '' }, { name: '', price: '' }, { name: '', price: '' }, { name: '', price: '' }, { name: '', price: '' }, { name: '', price: '' }, { name: '', price: '' }, { name: '', price: '' }, { name: '', price: '' }, { name: '', price: '' }, { name: '', price: '' }, { name: '', price: '' }, { name: '', price: '' }, { name: '', price: '' }, { name: '', price: '' }, { name: '', price: '' }],
       viewers: this.generateViewersMessage(),
       sessionCheckIn: 42,
-      sessionCheckOut: 58,
+      sessionCheckOut: 47,
       sessionLengthOfStay: 1,
       sessionRooms: 1,
       sessionChildren: 0,
@@ -22,7 +22,7 @@ class Booking extends React.Component {
       days: days,
       leftMonthIndex: 2,
       rightMonthIndex: 3,
-      areCheckInCalendarsActive: true,
+      areCheckInCalendarsActive: false,
       areCheckOutCalendarsActive: false,
       isGuestInformationActive: false,
       isSmallQuotesDisplayActive: false,
@@ -82,48 +82,54 @@ class Booking extends React.Component {
 
   handleCalendarRowItemClick(dayIndex, e) {
     if (this.state.areCheckInCalendarsActive) {
-      this.setState({
-        sessionCheckIn: dayIndex,
-        areCheckInCalendarsActive: false,
-        areCheckOutCalendarsActive: true,
-      })
-
-      fetch('/api/booking/' + this.state.id, {
-        method: 'POST',
-        body: JSON.stringify({ checkIn: this.state.sessionCheckIn, checkOut: this.state.sessionCheckOut, adults: this.state.sessionAdults, children: this.state.sessionChildren }),
-        headers: { 'Content-type': 'application/json' }
-      })
-        .then((data) => {
-          return data.json()
+      if (dayIndex >= this.state.sessionCheckOut) {
+        let newSessionCheckOut = dayIndex + this.state.sessionCheckOut - this.state.sessionCheckIn;
+        this.setState({
+          sessionCheckIn: dayIndex,
+          sessionCheckOut: newSessionCheckOut,
+          areCheckInCalendarsActive: false,
+          areCheckOutCalendarsActive: true,
         })
-        .then((dataJson) => {
-          this.setState({
-            deal: dataJson.deal,
-            prices: dataJson.prices
-          })
-        });
-    } else if (this.state.areCheckOutCalendarsActive) {
-      this.setState({
-        sessionCheckOut: dayIndex,
-        areCheckOutCalendarsActive: false,
-      })
-
-      fetch('/api/booking/' + this.state.id, {
-        method: 'POST',
-        body: JSON.stringify({ checkIn: this.state.sessionCheckIn, checkOut: this.state.sessionCheckOut, adults: this.state.sessionAdults, children: this.state.sessionChildren }),
-        headers: { 'Content-type': 'application/json' }
-      })
-        .then((data) => {
-          return data.json()
+      } else {
+        this.setState({
+          sessionCheckIn: dayIndex,
+          areCheckInCalendarsActive: false,
+          areCheckOutCalendarsActive: true,
         })
-        .then((dataJson) => {
-          this.setState({
-            deal: dataJson.deal,
-            prices: dataJson.prices
-          })
-        });
+      }
+    } else {
+      if(dayIndex <= this.state.sessionCheckIn) {
+        let newSessionCheckIn = dayIndex - (this.state.sessionCheckOut - this.state.sessionCheckIn)
+        this.setState({
+          sessionCheckIn: newSessionCheckIn,
+          sessionCheckOut: dayIndex,
+          areCheckOutCalendarsActive: false,
+          isGuestInformationActive:true
+        })
+      } else {
+        this.setState({
+          sessionCheckOut: dayIndex,
+          areCheckOutCalendarsActive: false,
+          isGuestInformationActive:true
+        })
+      }
     }
+    fetch('/api/booking/' + this.state.id, {
+      method: 'POST',
+      body: JSON.stringify({ checkIn: this.state.sessionCheckIn, checkOut: this.state.sessionCheckOut, adults: this.state.sessionAdults, children: this.state.sessionChildren }),
+      headers: { 'Content-type': 'application/json' }
+    })
+      .then((data) => {
+        return data.json()
+      })
+      .then((dataJson) => {
+        this.setState({
+          deal: dataJson.deal,
+          prices: dataJson.prices
+        })
+      });
   }
+
 
   handleGuestInfoClose(e) {
     this.setState({
@@ -132,17 +138,79 @@ class Booking extends React.Component {
   }
 
   handleGuestInfoClick(e) {
+    let newValue = !this.state.isGuestInformationActive
     this.setState({
-      isGuestInformationActive: true
+      isGuestInformationActive: newValue,
+      areCheckInCalendarsActive: false,
+      areCheckOutCalendarsActive: false
+    });
+  }
+
+  handleCheckInClick(e) {
+    let newValue = !this.state.areCheckInCalendarsActive
+    this.setState({
+      areCheckInCalendarsActive: newValue,
+      isGuestInformationActive: false,
+      areCheckOutCalendarsActive: false
+    });
+  }
+
+  handleCheckOutClick(e) {
+    let newValue = !this.state.areCheckOutCalendarsActive
+    this.setState({
+      areCheckOutCalendarsActive: newValue,
+      isGuestInformationActive: false,
+      areCheckInCalendarsActive: false
+    });
+  }
+
+
+  handleToggleUpGuestInfoCategory(guestInfoCategory, e) {
+    let newValue = this.state[guestInfoCategory]++;
+    this.setState({
+      guestInfoCategory: newValue
     })
   }
 
-  handleToggleUpGuestInfoCategory(guestInfoCategory, e) {
+  handleToggleDownGuestInfoCategory(guestInfoCategory, e) {
+    if (guestInfoCategory === 'sessionChildren') {
+      if (this.state[guestInfoCategory] !== 0) {
+        let newValue = this.state[guestInfoCategory]--;
+        this.setState({
+          guestInfoCategory: newValue
+        })
+      }
+    } else {
+      if (this.state[guestInfoCategory] !== 1) {
+        let newValue = this.state[guestInfoCategory]--;
+        this.setState({
+          guestInfoCategory: newValue
+        })
+      }
+    }
+  }
 
+  handleGuestInfoUpdateClick(e) {
+    this.setState({
+      isGuestInformationActive: false
+    })
+    fetch('/api/booking/' + this.state.id, {
+      method: 'POST',
+      body: JSON.stringify({ checkIn: this.state.sessionCheckIn, checkOut: this.state.sessionCheckOut, adults: this.state.sessionAdults, children: this.state.sessionChildren }),
+      headers: { 'Content-type': 'application/json' }
+    })
+      .then((data) => {
+        return data.json()
+      })
+      .then((dataJson) => {
+        this.setState({
+          deal: dataJson.deal,
+          prices: dataJson.prices
+        })
+      });
   }
 
   render() {
-    console.log(this.state.prices)
     return (
       <div style={{ "display": "inline-block", backgroundColor: "#f2f2f2", height: 2000, width: "100%" }}>
         <div id="bookingWidget" style={{ "display": "inline-block", "width": 395, "height": 560, "backgroundColor": "white", "textAlign": "center", "borderRadius": 0, "boxShadow": "0 0 3px 0px rgba(0, 0, 0, 0.4)" }}>
@@ -159,8 +227,8 @@ class Booking extends React.Component {
 
           <div id="userInputs">
             <div id="dates" style={{ "marginBottom": 3 }}>
-              <div id="checkInGreenBox" style={{ "display": "inline-block", "height": 44, "width": 176.5, "margin": "0 0 0 0px", "backgroundColor": "#00a680", "borderRadius": "3px", "border": "1px solid #d6d6d6" }}>
-                <div id="checkInBox" style={{ "height": 44, "width": 166, "backgroundColor": "white", "float": "right" }}>
+              <div id="checkInGreenBox" style={{ "display": "inline-block", "height": 44, "width": 176.5, "margin": "0 0 0 0px", "backgroundColor": "#00a680", "borderRadius": "3px", "border": "1px solid #d6d6d6", cursor: "pointer" }}>
+                <div id="checkInBox" style={{ "height": 44, "width": 166, "backgroundColor": "white", "float": "right", cursor: "pointer" }} onClick={(e) => { this.handleCheckInClick(e) }}>
                   <div style={{ "display": "inline-block", "height": 25, "width": 25, "color": "#767676", "fontSize": 18, "float": "left", "marginTop": 13, "marginLeft": 5, "marginRight": 5 }}><i class="far fa-calendar-alt"></i></div>
                   <div style={{ "marginLeft": 30 }}>
                     <div style={{ "textAlign": "left", "fontFamily": "Arial,Tahoma,Bitstream Vera Sans,sans-serif", "fontSize": 13, "color": "#4A4A4A", "marginBottom": 5, "marginTop": 5, "fontWeight": 300 }}>Check In</div>
@@ -169,9 +237,9 @@ class Booking extends React.Component {
                 </div>
               </div>
               <div style={{ "width": 8, "display": "inline-block" }}></div>
-              <div id="checkOutRedBox" style={{ "display": "inline-block", "textAlign": "left", "height": 44, "width": 176.5, "margin": "0 0 0 0px", "backgroundColor": "#D91E18", "borderRadius": "3px", "border": "1px solid #d6d6d6" }}>
-                <div id="checkOutBox" style={{ "height": 44, "width": 166, "backgroundColor": "white", "float": "right" }}>
-                  <div style={{ "display": "inline-block", "height": 25, "width": 25, "color": "#767676", "fontSize": 18, "float": "left", "marginTop": 13, "marginLeft": 10, "marginRight": 3 }}><i class="far fa-calendar-alt"></i></div>
+              <div id="checkOutRedBox" style={{ "display": "inline-block", "textAlign": "left", "height": 44, "width": 176.5, "margin": "0 0 0 0px", "backgroundColor": "#D91E18", "borderRadius": "3px", "border": "1px solid #d6d6d6", cursor: "pointer" }}>
+                <div id="checkOutBox" style={{ "height": 44, "width": 166, "backgroundColor": "white", "float": "right", cursor: "pointer" }} onClick={(e) => { this.handleCheckOutClick(e) }}>
+                  <div style={{ "display": "inline-block", "height": 25, "width": 25, "color": "#767676", "fontSize": 18, "float": "left", "marginTop": 13, "marginLeft": 10, "marginRight": 3, }}><i class="far fa-calendar-alt"></i></div>
                   <div style={{ "marginLeft": 30 }}>
                     <div style={{ "textAlign": "left", "fontFamily": "Arial,Tahoma,Bitstream Vera Sans,sans-serif", "fontSize": 13, "color": "#4A4A4A", "marginBottom": 5, "marginTop": 5, "fontWeight": 300 }}>Check In</div>
                     <div style={{ "textAlign": "left", "fontFamily": "Arial,Tahoma,Bitstream Vera Sans,sans-serif", "fontSize": 14, "color": "rgba(0, 0,. 0, 0.85)", "fontWeight": 600 }}>{this.state.days[this.state.sessionCheckOut].CheckInOutFormatted}</div>
@@ -183,7 +251,7 @@ class Booking extends React.Component {
 
 
             </div>
-            <div id="tripDetails" style={{ "display": "inline-block", "height": 42, "width": 363, "backgroundColor": "white", "borderRadius": "3px", "border": "1px solid #d6d6d6" }}>
+            <div id="tripDetails" style={{ "display": "inline-block", "height": 42, "width": 363, "backgroundColor": "white", "borderRadius": "3px", "border": "1px solid #d6d6d6", cursor: "pointer" }} onClick={(e) => { this.handleGuestInfoClick(e) }}>
               <div style={{ "display": "inline-block", "height": 25, "width": 25, "color": "#767676", "fontSize": 18, "float": "left", "marginTop": 13, "marginLeft": 8, "marginRight": 8 }}><i class="fas fa-user-friends"></i></div>
               <div style={{ "marginLeft": 30 }}>
                 <div style={{ "textAlign": "left", "fontFamily": "Arial,Tahoma,Bitstream Vera Sans,sans-serif", "fontSize": 13, "color": "#4A4A4A", "marginBottom": 5, "marginTop": 5, "fontWeight": 300 }}>Guests</div>
@@ -272,52 +340,105 @@ class Booking extends React.Component {
           </div>
         </div>
         <div style={{ display: "inline-block", "width": 100 }}></div>
-        <div id="calendar" style={{ "display": "inline-block", "backgroundColor": "white", "height": 419, "width": 545, "marginRight": 30, "boxShadow": "0 0 1px 0px rgba(0, 0, 0, 0.4)" }}>
-          <div id="header" style={{ "display": "block", "fontFamily": "Arial,Tahoma,Bitstream Vera Sans,sans-serif", "color": "#000a12", "fontWeight": 700, "fontSize": "16px", "textAlign": "center", "marginRight": "15px", "marginLeft": "15px", "borderBottom": "1px solid #e5e5e5", "paddingTop": 15, "paddingBottom": 0 }}>
-            <div style={{ "color": "#000A12" }}>Select a date to continue</div>
-            <div>
-              <div style={{ "display": "inline-block", "height": 10, "width": 10, "borderRadius": 2, "backgroundColor": "#fc0", "marginRight": 4 }}></div>
-              <div style={{ "display": "inline-block", "paddingTop": 4, paddingBottom: 4, "color": "#4A4A4A", "fontSize": 14 }}>Lowest priced dates</div>
-            </div>
-          </div>
-          <div id="months">
-            <div id="LeftMonth" style={{ "display": "inline-block", "width": 240, "height": 287, "marginTop": 12, "marginBottom": 12, "paddingRight": 16, "paddingLeft": 16, "whiteSpace": "nowrap", "fontFamily": "Arial,Tahoma,Bitstream Vera Sans,sans-serif", "color": "#2c2c2c", borderRight: "1px solid #e5e5e5" }}>
-              <div id="leftMonthHeaderAndNav" style={{ "display": "inline-block", "width": 240, "height": 38, "fontFamily": "Arial,Tahoma,Bitstream Vera Sans,sans-serif", 'textAlign': "center", "fontSize": 16, "fontWeight": 700, "paddingTop": 5, "paddingBottom": 5, "paddingRight": 7, "paddingLeft": 7 }}>
-                <div style={{ display: "inline-block" }}>{this.state.months[this.state.leftMonthIndex].month}</div>
-                <div style={{ display: "inline-block", float: "left" }} onClick={(e) => { this.handleCalendarToggleMonthLeft(e) }}><i class="fas fa-chevron-left"></i></div>
+
+
+        {this.state.areCheckInCalendarsActive ?
+          <div id="checkInCalendars" style={{ position: "absolute", left: 220, "display": "inline-block", "backgroundColor": "white", "height": 419, "width": 545, "marginRight": 30, "boxShadow": "0 0 1px 0px rgba(0, 0, 0, 0.4)", borderRadius: 2}}>
+            <div id="header" style={{ "display": "block", "fontFamily": "Arial,Tahoma,Bitstream Vera Sans,sans-serif", "color": "#000a12", "fontWeight": 700, "fontSize": "16px", "textAlign": "center", "marginRight": "15px", "marginLeft": "15px", "borderBottom": "1px solid #e5e5e5", "paddingTop": 15, "paddingBottom": 0 }}>
+              <div style={{ "color": "#000A12" }}>Select a date to continue</div>
+              <div>
+                <div style={{ "display": "inline-block", "height": 10, "width": 10, "borderRadius": 2, "backgroundColor": "#fc0", "marginRight": 4 }}></div>
+                <div style={{ "display": "inline-block", "paddingTop": 4, paddingBottom: 4, "color": "#4A4A4A", "fontSize": 14 }}>Lowest priced dates</div>
               </div>
-              <Calendar rows={this.state.months[this.state.leftMonthIndex]} days={this.state.days} handleCalendarRowItemClick={this.handleCalendarRowItemClick.bind(this)} />
             </div>
-            <div id="rightMonth" style={{ "display": "inline-block", "width": 240, "height": 287, "marginTop": 12, "marginBottom": 12, "paddingRight": 16, "paddingLeft": 16, "whiteSpace": "nowrap", "fontFamily": "Arial,Tahoma,Bitstream Vera Sans,sans-serif", "color": "#2c2c2c" }}>
-              <div id="rightMonthHeaderAndNav" style={{ "display": "inline-block", "width": 240, "height": 38, "fontFamily": "Arial,Tahoma,Bitstream Vera Sans,sans-serif", 'textAlign': "center", "fontSize": 16, "fontWeight": 700, "paddingTop": 5, "paddingBottom": 5, "paddingRight": 7, "paddingLeft": 7 }}>
-                <div style={{ display: "inline-block" }}>{this.state.months[this.state.rightMonthIndex].month}</div>
-                <div style={{ display: "inline-block", float: "right" }} onClick={(e) => { this.handleCalendarToggleMonthRight(e) }}><i class="fas fa-chevron-right"></i></div>
+            <div id="months">
+              <div id="LeftMonth" style={{ "display": "inline-block", "width": 240, "height": 287, "marginTop": 12, "marginBottom": 12, "paddingRight": 16, "paddingLeft": 16, "whiteSpace": "nowrap", "fontFamily": "Arial,Tahoma,Bitstream Vera Sans,sans-serif", "color": "#2c2c2c", borderRight: "1px solid #e5e5e5" }}>
+                <div id="leftMonthHeaderAndNav" style={{ "display": "inline-block", "width": 240, "height": 38, "fontFamily": "Arial,Tahoma,Bitstream Vera Sans,sans-serif", 'textAlign': "center", "fontSize": 16, "fontWeight": 700, "paddingTop": 5, "paddingBottom": 5, "paddingRight": 7, "paddingLeft": 7 }}>
+                  <div style={{ display: "inline-block" }}>{this.state.months[this.state.leftMonthIndex].month}</div>
+                  <div style={{ display: "inline-block", float: "left" }} onClick={(e) => { this.handleCalendarToggleMonthLeft(e) }}><i class="fas fa-chevron-left"></i></div>
+                </div>
+                <Calendar rows={this.state.months[this.state.leftMonthIndex]} days={this.state.days} handleCalendarRowItemClick={this.handleCalendarRowItemClick.bind(this)} />
               </div>
-              <Calendar rows={this.state.months[this.state.rightMonthIndex]} days={this.state.days} handleCalendarRowItemClick={this.handleCalendarRowItemClick.bind(this)} />
+              <div id="rightMonth" style={{ "display": "inline-block", "width": 240, "height": 287, "marginTop": 12, "marginBottom": 12, "paddingRight": 16, "paddingLeft": 16, "whiteSpace": "nowrap", "fontFamily": "Arial,Tahoma,Bitstream Vera Sans,sans-serif", "color": "#2c2c2c" }}>
+                <div id="rightMonthHeaderAndNav" style={{ "display": "inline-block", "width": 240, "height": 38, "fontFamily": "Arial,Tahoma,Bitstream Vera Sans,sans-serif", 'textAlign': "center", "fontSize": 16, "fontWeight": 700, "paddingTop": 5, "paddingBottom": 5, "paddingRight": 7, "paddingLeft": 7 }}>
+                  <div style={{ display: "inline-block" }}>{this.state.months[this.state.rightMonthIndex].month}</div>
+                  <div style={{ display: "inline-block", float: "right" }} onClick={(e) => { this.handleCalendarToggleMonthRight(e) }}><i class="fas fa-chevron-right"></i></div>
+                </div>
+                <Calendar rows={this.state.months[this.state.rightMonthIndex]} days={this.state.days} handleCalendarRowItemClick={this.handleCalendarRowItemClick.bind(this)} />
+              </div>
+
+
+
+
             </div>
+            {/* <div style={{ "borderBottom": "1px solid #e5e5e5", "width": 523,"paddingRight": 16, "paddingLeft": 16, "textAlign":"center"}}></div> */}
+            <div id="averagePrices" style={{ "display": "block", "width": 510, "height": 20, "marginRight": 16, "marginLeft": 16, "paddingTop": 12, "paddingBottom": 15, "borderTop": "1px solid #e5e5e5" }}>
+              <span style={{ "fontFamily": "Arial,Tahoma,Bitstream Vera Sans,sans-serif", "color": "#2c2c2c", "fontSize": 13 }}>Average daily rates: ${this.state.prices[0].price} - ${this.state.prices[19].price}</span>
+            </div>
+            <div id="triangle" style={{position:"absolute", left:-10, top: 73, transform:"rotate(45deg)", height: 18, width:18, backgroundColor:"white", borderBottom: "1px solid #e5e5e5", borderLeft:"1px solid #e5e5e5"}}>
+            </div>
+          </div> : ''}
+
+        {this.state.areCheckOutCalendarsActive ?
+          <div id="checkInCalendars" style={{ position: "absolute", left: 407, "display": "inline-block", "backgroundColor": "white", "height": 419, "width": 545, "marginRight": 30, "boxShadow": "0 0 1px 0px rgba(0, 0, 0, 0.4)", borderRadius: 2}}>
+            <div id="header" style={{ "display": "block", "fontFamily": "Arial,Tahoma,Bitstream Vera Sans,sans-serif", "color": "#000a12", "fontWeight": 700, "fontSize": "16px", "textAlign": "center", "marginRight": "15px", "marginLeft": "15px", "borderBottom": "1px solid #e5e5e5", "paddingTop": 15, "paddingBottom": 0 }}>
+              <div style={{ "color": "#000A12" }}>Select a date to continue</div>
+              <div>
+                <div style={{ "display": "inline-block", "height": 10, "width": 10, "borderRadius": 2, "backgroundColor": "#fc0", "marginRight": 4 }}></div>
+                <div style={{ "display": "inline-block", "paddingTop": 4, paddingBottom: 4, "color": "#4A4A4A", "fontSize": 14 }}>Lowest priced dates</div>
+              </div>
+            </div>
+            <div id="months">
+              <div id="LeftMonth" style={{ "display": "inline-block", "width": 240, "height": 287, "marginTop": 12, "marginBottom": 12, "paddingRight": 16, "paddingLeft": 16, "whiteSpace": "nowrap", "fontFamily": "Arial,Tahoma,Bitstream Vera Sans,sans-serif", "color": "#2c2c2c", borderRight: "1px solid #e5e5e5" }}>
+                <div id="leftMonthHeaderAndNav" style={{ "display": "inline-block", "width": 240, "height": 38, "fontFamily": "Arial,Tahoma,Bitstream Vera Sans,sans-serif", 'textAlign': "center", "fontSize": 16, "fontWeight": 700, "paddingTop": 5, "paddingBottom": 5, "paddingRight": 7, "paddingLeft": 7 }}>
+                  <div style={{ display: "inline-block" }}>{this.state.months[this.state.leftMonthIndex].month}</div>
+                  <div style={{ display: "inline-block", float: "left" }} onClick={(e) => { this.handleCalendarToggleMonthLeft(e) }}><i class="fas fa-chevron-left"></i></div>
+                </div>
+                <Calendar rows={this.state.months[this.state.leftMonthIndex]} days={this.state.days} handleCalendarRowItemClick={this.handleCalendarRowItemClick.bind(this)} />
+              </div>
+              <div id="rightMonth" style={{ "display": "inline-block", "width": 240, "height": 287, "marginTop": 12, "marginBottom": 12, "paddingRight": 16, "paddingLeft": 16, "whiteSpace": "nowrap", "fontFamily": "Arial,Tahoma,Bitstream Vera Sans,sans-serif", "color": "#2c2c2c" }}>
+                <div id="rightMonthHeaderAndNav" style={{ "display": "inline-block", "width": 240, "height": 38, "fontFamily": "Arial,Tahoma,Bitstream Vera Sans,sans-serif", 'textAlign': "center", "fontSize": 16, "fontWeight": 700, "paddingTop": 5, "paddingBottom": 5, "paddingRight": 7, "paddingLeft": 7 }}>
+                  <div style={{ display: "inline-block" }}>{this.state.months[this.state.rightMonthIndex].month}</div>
+                  <div style={{ display: "inline-block", float: "right" }} onClick={(e) => { this.handleCalendarToggleMonthRight(e) }}><i class="fas fa-chevron-right"></i></div>
+                </div>
+                <Calendar rows={this.state.months[this.state.rightMonthIndex]} days={this.state.days} handleCalendarRowItemClick={this.handleCalendarRowItemClick.bind(this)} />
+              </div>
 
 
 
 
-          </div>
-          {/* <div style={{ "borderBottom": "1px solid #e5e5e5", "width": 523,"paddingRight": 16, "paddingLeft": 16, "textAlign":"center"}}></div> */}
-          <div id="averagePrices" style={{ "display": "block", "width": 510, "height": 20, "marginRight": 16, "marginLeft": 16, "paddingTop": 12, "paddingBottom": 15, "borderTop": "1px solid #e5e5e5" }}>
-            <span style={{ "fontFamily": "Arial,Tahoma,Bitstream Vera Sans,sans-serif", "color": "#2c2c2c", "fontSize": 13 }}>Average daily rates: ${this.state.prices[0].price} - ${this.state.prices[19].price}</span>
-          </div>
-        </div>
+            </div>
+            {/* <div style={{ "borderBottom": "1px solid #e5e5e5", "width": 523,"paddingRight": 16, "paddingLeft": 16, "textAlign":"center"}}></div> */}
+            <div id="averagePrices" style={{ "display": "block", "width": 510, "height": 20, "marginRight": 16, "marginLeft": 16, "paddingTop": 12, "paddingBottom": 15, "borderTop": "1px solid #e5e5e5" }}>
+              <span style={{ "fontFamily": "Arial,Tahoma,Bitstream Vera Sans,sans-serif", "color": "#2c2c2c", "fontSize": 13 }}>Average daily rates: ${this.state.prices[0].price} - ${this.state.prices[19].price}</span>
+            </div>
+            <div id="triangle" style={{position:"absolute", left:-10, top: 73, transform:"rotate(45deg)", height: 18, width:18, backgroundColor:"white", borderBottom: "1px solid #e5e5e5", borderLeft:"1px solid #e5e5e5"}}>
+            </div>
+          </div> : ''}
 
-        <div id="guestInfo" style={{ position: "absolute", left: 403, top: 50, "backgroundColor": "white", "height": 230, "width": 288, paddingTop: 16, paddingBottom: 16, paddingRight: 16, paddingLeft: 16, "boxShadow": "0 0 1px 0px rgba(0, 0, 0, 0.4)" }}>
 
-          <div id="closeGuestInfo" style={{ float: "right", color: "#00a680", fontSize: 20, cursor: "pointer" }}>< i class="fas fa-times"></i></div>
+
+
+
+
+
+
+
+
+
+
+        {this.state.isGuestInformationActive ? <div id="guestInfo" style={{ position: "absolute", left: 407, top: 40, "backgroundColor": "white", "height": 230, "width": 288, paddingTop: 16, paddingBottom: 16, paddingRight: 16, paddingLeft: 16, "boxShadow": "0 0 1px 0px rgba(0, 0, 0, 0.4)", borderRadius: 2}}>
+
+          <div id="closeGuestInfo" style={{ float: "right", color: "#00a680", fontSize: 20, cursor: "pointer" }} onClick={(e) => { this.handleGuestInfoClose(e) }}>< i class="fas fa-times"></i></div>
 
           <div id="rooms" style={{ display: "inline-block", height: 36, width: 288, color: "#2C2C2C", "fontFamily": "Arial,Tahoma,Bitstream Vera Sans,sans-serif", fontWeight: 700, paddingTop: 16, fontSize: ".95em" }}>
             <div style={{ display: "inline-block", marginTop: 12 }}>
               <span><i class="fas fa-bed"></i></span><span style={{ "marginLeft": 5 }}>Rooms</span>
             </div>
             <div style={{ display: "flex", flexDirection: "row", float: "right" }}>
-              <div style={{ display: "flex", width: 36, height: 36, color: "#00A680", alignItems: "center", justifyContent: "center", border: "1px solid #e5e5e5", cursor: "pointer" }}><i class="fas fa-minus"></i></div>
+              <div style={{ display: "flex", width: 36, height: 36, color: "#00A680", alignItems: "center", justifyContent: "center", border: "1px solid #e5e5e5", cursor: "pointer" }} onClick={(e) => { this.handleToggleDownGuestInfoCategory('sessionRooms', e) }}><i class="fas fa-minus"></i></div>
               <div style={{ display: "flex", width: 58, height: 36, color: "#2C2c2C", alignItems: "center", justifyContent: "center", border: "1px solid #e5e5e5", fontWeight: 400, boxShadow: "inset 0 3px 3px -3px rgba(0,0,0,.25)" }}>{this.state.sessionRooms}</div>
-              <div style={{ display: "flex", width: 36, height: 36, color: "#00A680", alignItems: "center", justifyContent: "center", border: "1px solid #e5e5e5", cursor: "pointer" }}><i class="fas fa-plus"></i></div>
+              <div style={{ display: "flex", width: 36, height: 36, color: "#00A680", alignItems: "center", justifyContent: "center", border: "1px solid #e5e5e5", cursor: "pointer" }} onClick={(e) => { this.handleToggleUpGuestInfoCategory('sessionRooms', e) }}><i class="fas fa-plus"></i></div>
             </div>
           </div>
 
@@ -330,9 +451,9 @@ class Booking extends React.Component {
               <span><i class="fas fa-bed"></i></span><span style={{ "marginLeft": 5 }}>Adults</span>
             </div>
             <div style={{ display: "flex", flexDirection: "row", float: "right" }}>
-              <div style={{ display: "flex", width: 36, height: 36, color: "#00A680", alignItems: "center", justifyContent: "center", border: "1px solid #e5e5e5", cursor: "pointer" }}><i class="fas fa-minus"></i></div>
+              <div style={{ display: "flex", width: 36, height: 36, color: "#00A680", alignItems: "center", justifyContent: "center", border: "1px solid #e5e5e5", cursor: "pointer" }} onClick={(e) => { this.handleToggleDownGuestInfoCategory('sessionAdults', e) }}><i class="fas fa-minus"></i></div>
               <div style={{ display: "flex", width: 58, height: 36, color: "#2C2c2C", alignItems: "center", justifyContent: "center", border: "1px solid #e5e5e5", fontWeight: 400, boxShadow: "inset 0 3px 3px -3px rgba(0,0,0,.25)" }}>{this.state.sessionAdults}</div>
-              <div style={{ display: "flex", width: 36, height: 36, color: "#00A680", alignItems: "center", justifyContent: "center", border: "1px solid #e5e5e5", cursor: "pointer" }}><i class="fas fa-plus"></i></div>
+              <div style={{ display: "flex", width: 36, height: 36, color: "#00A680", alignItems: "center", justifyContent: "center", border: "1px solid #e5e5e5", cursor: "pointer" }} onClick={(e) => { this.handleToggleUpGuestInfoCategory('sessionAdults', e) }}><i class="fas fa-plus"></i></div>
             </div>
           </div>
 
@@ -346,15 +467,17 @@ class Booking extends React.Component {
               <span><i class="fas fa-bed"></i></span><span style={{ "marginLeft": 5 }}>Children</span>
             </div>
             <div style={{ display: "flex", flexDirection: "row", float: "right" }}>
-              <div style={{ display: "flex", width: 36, height: 36, color: "#00A680", alignItems: "center", justifyContent: "center", border: "1px solid #e5e5e5", cursor: "pointer" }}><i class="fas fa-minus"></i></div>
+              <div style={{ display: "flex", width: 36, height: 36, color: "#00A680", alignItems: "center", justifyContent: "center", border: "1px solid #e5e5e5", cursor: "pointer" }} onClick={(e) => { this.handleToggleDownGuestInfoCategory('sessionChildren', e) }}><i class="fas fa-minus"></i></div>
               <div style={{ display: "flex", width: 58, height: 36, color: "#2C2c2C", alignItems: "center", justifyContent: "center", border: "1px solid #e5e5e5", fontWeight: 400, boxShadow: "inset 0 3px 3px -3px rgba(0,0,0,.25)" }}>{this.state.sessionChildren}</div>
-              <div style={{ display: "flex", width: 36, height: 36, color: "#00A680", alignItems: "center", justifyContent: "center", border: "1px solid #e5e5e5", cursor: "pointer" }}><i class="fas fa-plus"></i></div>
+              <div style={{ display: "flex", width: 36, height: 36, color: "#00A680", alignItems: "center", justifyContent: "center", border: "1px solid #e5e5e5", cursor: "pointer" }} onClick={(e) => { this.handleToggleUpGuestInfoCategory('sessionChildren', e) }}><i class="fas fa-plus"></i></div>
             </div>
           </div>
           <div style={{ paddingTop: 16 }}>
-            <button id="update" style={{ borderColor: "#078171", width: 288, height: 36, backgroundColor: "#078171", color: "#fff", fontFamily: "Arial,Tahoma,Bitstream Vera Sans,sans-serif", border: "1px solid transparent", borderRadius: 3, fontSize: ".95em", textAlign: "center", cursor: "pointer", fontWeight: 700 }}>Update</button>
+            <button id="update" style={{ borderColor: "#078171", width: 288, height: 36, backgroundColor: "#078171", color: "#fff", fontFamily: "Arial,Tahoma,Bitstream Vera Sans,sans-serif", border: "1px solid transparent", borderRadius: 3, fontSize: ".95em", textAlign: "center", cursor: "pointer", fontWeight: 700 }} onClick={(e) => {this.handleGuestInfoUpdateClick(e)}}>Update</button>
           </div>
-        </div>
+          <div id="triangle" style={{position:"absolute", left:-10, top: 95, transform:"rotate(45deg)", height: 18, width:18, backgroundColor:"white", borderBottom: "1px solid #e5e5e5", borderLeft:"1px solid #e5e5e5"}}>
+            </div>
+        </div> : ''}
 
 
 

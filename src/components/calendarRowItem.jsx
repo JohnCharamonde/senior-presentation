@@ -1,7 +1,6 @@
 import React from 'react';
 
 function CalendarRowItem(props) {
-  console.log('LOOK HERE!', props.handleCalendarRowItemClick)
   // var whatColor;
   //   if(props.rowItem === 'RED') {
   //     'RED';

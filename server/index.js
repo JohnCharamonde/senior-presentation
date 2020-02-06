@@ -7,6 +7,8 @@ app.use(express.json());
 
 app.use('/:id', express.static('./public'));
 
+const PORT = process.env.REVIEWS_PORT || 50003;
+
 app.post('/api/booking/:id/', (req, res) => {
   console.log(req.body.checkIn)
   // get the record for the hotel corresponding to the id passed through the url
@@ -58,6 +60,6 @@ app.post('/api/booking/:id/', (req, res) => {
   });
 });
 
-app.listen(3000, () => {
-  console.log('listening on port 3000')
+app.listen(PORT, () => {
+  console.log(`listening on port ${PORT}`)
 })

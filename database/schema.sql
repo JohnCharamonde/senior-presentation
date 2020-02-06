@@ -1,8 +1,10 @@
-DROP DATABASE IF EXISTS booking;
+-- DROP DATABASE IF EXISTS booking;
 
-CREATE DATABASE booking;
+IF NOT EXISTS CREATE DATABASE HRR43_FEC;
 
-USE booking;
+USE HRR43_FEC;
+
+IF EXISTS hotels DROP HRR43_FEC.hotels;
 
 CREATE TABLE hotels (
   id int NOT NULL AUTO_INCREMENT,
@@ -14,6 +16,8 @@ CREATE TABLE hotels (
   PRIMARY KEY(id)
 );
 
+IF EXISTS sites DROP HRR43_FEC.sites;
+
 CREATE TABLE sites (
   id int NOT NULL AUTO_INCREMENT,
   site_name varchar(25),
@@ -22,6 +26,8 @@ CREATE TABLE sites (
   incentive decimal,
   PRIMARY KEY(id)
 );
+
+IF EXISTS dates DROP HRR43_FEC.dates;
 
 CREATE TABLE dates (
   id int NOT NULL AUTO_INCREMENT,
