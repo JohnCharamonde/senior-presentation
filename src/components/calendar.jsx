@@ -1,7 +1,6 @@
 import React from 'react';
 import CalendarRow from "./calendarRow.jsx"
 function Calendar(props) {
-  // console.log(props.days)
   return (
     <table style={{width: 240, height: 206}}>
       <thead style={{fontSize: 11, color: "#2c2c2c", fontFamily: "Arial,Tahoma,Bitstream Vera Sans,sans-serif", height:38, width:70}}>

@@ -1,5 +1,5 @@
 var faker = require('faker');
-const connection = require('./index.js');
+const db = require('./index.js');
 
 // POPULATE hotels TABLE WITH 100 HOTELS
 
@@ -30,7 +30,7 @@ let seedHotels = () => {
     deal
   ]
 
-  connection.query('INSERT INTO hotels (standard_rate, adult_premium, child_premium, max_stay, deal) VALUES (?, ?, ?, ?, ?)', params, (err, result) => {
+  db.connection.query('INSERT INTO hotels (standard_rate, adult_premium, child_premium, max_stay, deal) VALUES (?, ?, ?, ?, ?)', params, (err, result) => {
     if (err) {
       console.log(`ERROR! There was an error adding a hotel with an id of ${hotelsAdded + 1} to the hotels table`)
     } else {
@@ -69,7 +69,7 @@ seedSites = () => {
     incentive
   ]
 
-  connection.query('INSERT INTO sites (site_name, logo, tweak, incentive) VALUES (?, ?, ?, ?)', params, (err, results) => {
+  db.connection.query('INSERT INTO sites (site_name, logo, tweak, incentive) VALUES (?, ?, ?, ?)', params, (err, results) => {
     if (err) {
       console.log(`ERROR! There was an error adding a site with an id of ${sitesAdded + 1} to the sites table`)
     } else {
@@ -98,7 +98,7 @@ seedDates = () => {
 
   let params = [datePremium];
 
-  connection.query('INSERT INTO dates (date_premium) VALUES (?)', params, (err, results) => {
+  db.connection.query('INSERT INTO dates (date_premium) VALUES (?)', params, (err, results) => {
     if(err) {
       console.log(`ERROR! There was an error adding a day with an id of ${daysAdded + 1} to the dates table`);
     } else {
