@@ -7,7 +7,9 @@ const connection = mysql.createConnection({
   database: process.env.RDS_DATABASE || 'HRR43_FEC',
 });
 
-connection.connect();
+connection.connect((err) => {
+  console.log(err.stack)
+});
 
 // get a hotel's record
 const getTargetHotelInfo = (id, callback) => {
