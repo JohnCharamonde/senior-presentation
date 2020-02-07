@@ -1,4 +1,5 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import Booking from './components/Booking.jsx'
 
-ReactDOM.render(<div>HELLO, THIS IS A DIV</div>, document.getElementById('booking'));
+ReactDOM.render(<Booking />, document.getElementById('booking'));
