@@ -5,10 +5,17 @@ const connection = mysql.createConnection({
   user: process.env.RDS_USERNAME || 'root',
   password: process.env.RDS_PASSWORD || undefined,
   database: process.env.RDS_DATABASE || 'HRR43_FEC',
+  port: process.env.RDS_PORT || 3307,
 });
 
 connection.connect((err) => {
-  console.log(err.stack)
+  if (err) {
+    console.log(err.stack);
+    return;
+  } else {
+    console.log('connected to database');
+  }
+
 });
 
 // get a hotel's record
