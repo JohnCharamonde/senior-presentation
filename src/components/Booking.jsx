@@ -212,7 +212,7 @@ class Booking extends React.Component {
 
   render() {
     return (
-      <div style={{ "display": "inline-block", backgroundColor: "#f2f2f2", height: 2000, width: "100%" }}>
+      <div style={{ "display": "inline-block", backgroundColor: "#f2f2f2"}}>
         <div id="bookingWidget" style={{ "display": "inline-block", "width": 395, "height": 560, "backgroundColor": "white", "textAlign": "center", "borderRadius": 0, "boxShadow": "0 0 3px 0px rgba(0, 0, 0, 0.4)" }}>
           <div id="viewers" style={{ "height": "15px", "margin": "8px 0", "padding": "15px" }}>
             <div id="viewerMessage" style={{ "fontFamily": "Arial,Tahoma,Bitstream Vera Sans,sans-serif", "color": "#D91E18", "fontWeight": 700, "fontSize": "16px", "textAlign": "center" }}>
