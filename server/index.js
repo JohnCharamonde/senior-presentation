@@ -4,7 +4,7 @@ const app = express();
 
 
 app.use(express.json());
-
+app.use('/bundle.js', express.static(__dirname + '/../public/bundle.js'));
 app.use('/:id', express.static('./public'));
 
 const PORT = process.env.REVIEWS_PORT || 50003;
