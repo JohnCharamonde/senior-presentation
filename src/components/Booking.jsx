@@ -241,7 +241,7 @@ class Booking extends React.Component {
                 <div id="checkOutBox" style={{ "height": 44, "width": 166, "backgroundColor": "white", "float": "right", cursor: "pointer" }} onClick={(e) => { this.handleCheckOutClick(e) }}>
                   <div style={{ "display": "inline-block", "height": 25, "width": 25, "color": "#767676", "fontSize": 18, "float": "left", "marginTop": 13, "marginLeft": 10, "marginRight": 3, }}><i class="far fa-calendar-alt"></i></div>
                   <div style={{ "marginLeft": 30 }}>
-                    <div style={{ "textAlign": "left", "fontFamily": "Arial,Tahoma,Bitstream Vera Sans,sans-serif", "fontSize": 13, "color": "#4A4A4A", "marginBottom": 5, "marginTop": 5, "fontWeight": 300 }}>Check In</div>
+                    <div style={{ "textAlign": "left", "fontFamily": "Arial,Tahoma,Bitstream Vera Sans,sans-serif", "fontSize": 13, "color": "#4A4A4A", "marginBottom": 5, "marginTop": 5, "fontWeight": 300 }}>Check Out</div>
                     <div style={{ "textAlign": "left", "fontFamily": "Arial,Tahoma,Bitstream Vera Sans,sans-serif", "fontSize": 14, "color": "rgba(0, 0,. 0, 0.85)", "fontWeight": 600 }}>{this.state.days[this.state.sessionCheckOut].CheckInOutFormatted}</div>
                   </div>
                 </div>
@@ -343,7 +343,7 @@ class Booking extends React.Component {
 
 
         {this.state.areCheckInCalendarsActive ?
-          <div id="checkInCalendars" style={{ position: "absolute", left: 220, "display": "inline-block", "backgroundColor": "white", "height": 419, "width": 545, "zIndex": 1,"marginRight": 30, "boxShadow": "0 0 1px 0px rgba(0, 0, 0, 0.4)", borderRadius: 2}}>
+          <div id="checkInCalendars" style={{ position: "absolute", left: 220,top: '10px', "display": "inline-block", "backgroundColor": "white", "height": 419, "width": 545, "zIndex": 1,"marginRight": 30, "boxShadow": "0 0 1px 0px rgba(0, 0, 0, 0.4)", borderRadius: 2}}>
             <div id="header" style={{ "display": "block", "fontFamily": "Arial,Tahoma,Bitstream Vera Sans,sans-serif", "color": "#000a12", "fontWeight": 700, "fontSize": "16px", "textAlign": "center", "marginRight": "15px", "marginLeft": "15px", "borderBottom": "1px solid #e5e5e5", "paddingTop": 15, "paddingBottom": 0 }}>
               <div style={{ "color": "#000A12" }}>Select a date to continue</div>
               <div>
@@ -380,7 +380,7 @@ class Booking extends React.Component {
           </div> : ''}
 
         {this.state.areCheckOutCalendarsActive ?
-          <div id="checkInCalendars" style={{ position: "absolute", left: 407, "display": "inline-block", "backgroundColor": "white", "height": 419, "width": 545, "zIndex": 1, "marginRight": 30, "boxShadow": "0 0 1px 0px rgba(0, 0, 0, 0.4)", borderRadius: 2}}>
+          <div id="checkInCalendars" style={{ position: "absolute", left: 407,top: '10px', "display": "inline-block", "backgroundColor": "white", "height": 419, "width": 545, "zIndex": 1, "marginRight": 30, "boxShadow": "0 0 1px 0px rgba(0, 0, 0, 0.4)", borderRadius: 2}}>
             <div id="header" style={{ "display": "block", "fontFamily": "Arial,Tahoma,Bitstream Vera Sans,sans-serif", "color": "#000a12", "fontWeight": 700, "fontSize": "16px", "textAlign": "center", "marginRight": "15px", "marginLeft": "15px", "borderBottom": "1px solid #e5e5e5", "paddingTop": 15, "paddingBottom": 0 }}>
               <div style={{ "color": "#000A12" }}>Select a date to continue</div>
               <div>
@@ -409,7 +409,7 @@ class Booking extends React.Component {
 
             </div>
             {/* <div style={{ "borderBottom": "1px solid #e5e5e5", "width": 523,"paddingRight": 16, "paddingLeft": 16, "textAlign":"center"}}></div> */}
-            <div id="averagePrices" style={{ "display": "block", "width": 510, "height": 20, "marginRight": 16, "marginLeft": 16, "paddingTop": 12, "paddingBottom": 15, "zIndex":1, "borderTop": "1px solid #e5e5e5" }}>
+            <div id="averagePrices" style={{ "display": "block", "width": 510, "height": 20, "marginRight": 16, "marginLeft": 16, "paddingTop": 12, "paddingBottom": 15, "borderTop": "1px solid #e5e5e5" }}>
               <span style={{ "fontFamily": "Arial,Tahoma,Bitstream Vera Sans,sans-serif", "color": "#2c2c2c", "fontSize": 13 }}>Average daily rates: ${this.state.prices[0].price} - ${this.state.prices[19].price}</span>
             </div>
             <div id="triangle" style={{position:"absolute", left:-10, top: 73, transform:"rotate(45deg)", height: 18, width:18, backgroundColor:"white", borderBottom: "1px solid #e5e5e5", borderLeft:"1px solid #e5e5e5"}}>
@@ -427,7 +427,7 @@ class Booking extends React.Component {
 
 
 
-        {this.state.isGuestInformationActive ? <div id="guestInfo" style={{ position: "absolute", left: 407, top: 40, "backgroundColor": "white", "height": 230, "width": 288, paddingTop: 16, paddingBottom: 16, paddingRight: 16, paddingLeft: 16, "boxShadow": "0 0 1px 0px rgba(0, 0, 0, 0.4)", borderRadius: 2}}>
+        {this.state.isGuestInformationActive ? <div id="guestInfo" style={{ position: "absolute", zIndex: 1, left: 407, top: 40, "backgroundColor": "white", "height": 230, "width": 288, paddingTop: 16, paddingBottom: 16, paddingRight: 16, paddingLeft: 16, "boxShadow": "0 0 1px 0px rgba(0, 0, 0, 0.4)", borderRadius: 2}}>
 
           <div id="closeGuestInfo" style={{ float: "right", color: "#00a680", fontSize: 20, cursor: "pointer" }} onClick={(e) => { this.handleGuestInfoClose(e) }}>< i class="fas fa-times"></i></div>
 
