@@ -7,7 +7,7 @@ app.use(express.json());
 app.use('/bundle.js', express.static(__dirname + '/../public/bundle.js'));
 app.use('/:id', express.static('./public'));
 
-const PORT = process.env.REVIEWS_PORT || 50003;
+const PORT = process.env.BOOKING_PORT || 50003;
 
 app.post('/api/booking/:id/', (req, res) => {
   console.log(req.body.checkIn)
